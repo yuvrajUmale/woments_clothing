@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            svg {
+                margin-left: 30%;
+            }
+            .arc text {
+                font: 10px sans-serif;
+                text-anchor: middle;
+            }
+
+            .arc path {
+                stroke: #fff;
+            }
+
+            .title {
+                margin-top: 20px;
+                font-size: 25px;
+                fill: teal;
+                font-weight: bold;
+                /* margin: 20px; */
+            }
+            .arc > text {
+                font-size: 15px;
+                fill: #fff;
+            }
+
+            h1 {
+                margin: 0 auto;
+            }
+        </style>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+    <body>
+        <svg width="500" height="600"></svg>
+        <script>
+            var svg = d3.select("svg"),
+                width = svg.attr("width"),
+                height = svg.attr("height"),
+                radius = Math.min(width, height) / 2;
+
+            var g = svg
+                .append("g")
+                .attr(
+                    "transform",
+                    "translate(" + width / 2 + "," + height / 2 + ")"
+                );
+
+            var color = d3.scaleOrdinal([
+                "#4daf4a",
+                "#377eb8",
+                "#ff7f00",
+                "#984ea3",
+                "#e41a1c",
+            ]);
+
+            var pie = d3.pie().value(function (d) {
+                return d.percent;
+            });
+
+            var path = d3
+                .arc()
+                .outerRadius(radius - 10)
+                .innerRadius(0);
+
+            var label = d3
+                .arc()
+                .outerRadius(radius)
+                .innerRadius(radius - 110);
+
+            d3.csv("browseruse.csv", function (error, data) {
+                if (error) {
+                    throw error;
+                }
+                var arc = g
+                    .selectAll(".arc")
+                    .data(pie(data))
+                    .enter()
+                    .append("g")
+                    .attr("class", "arc");
+
+                arc.append("path")
+                    .attr("d", path)
+                    .attr("fill", function (d) {
+                        return color(d.data.browser);
+                    });
+
+                console.log(arc);
+
+                arc.append("text")
+                    .attr("transform", function (d) {
+                        return "translate(" + label.centroid(d) + ")";
+                    })
+                    .text(function (d) {
+                        return d.data.browser;
+                    });
+            });
+
+            svg.append("g")
+                .attr(
+                    "transform",
+                    "translate(" + (width / 2 - 120) + "," + 20 + ")"
+                )
+                .append("text")
+                .text("Women's E-Commerce Clothing")
+                .attr("class", "title");
+        </script>
+    </body>
+</html>
